@@ -1,0 +1,50 @@
+version: "3.7"
+
+services:
+
+  redis:
+    image: redis
+    container_name: redis
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - 6379:6379
+
+  redis-commander:
+    container_name: subscription_redis-commander
+    image: rediscommander/redis-commander
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+
+  mongo:
+    image: mongo
+    container_name: mongo
+    restart: always
+    volumes:
+      - ./data/dev/mongo:/data/db
+    ports:
+      - "27017:27017"
+
+  server:
+    container_name: subscription_bkk
+    build:
+      context: ./
+    environment:
+      REDIS_URL: redis:6379
+      DB : subscription_docker
+      PORT: 8000
+      HOST : localhost
+      DB_PORT : 27017
+      DB_HOST : mongo
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: 1000
+    ports:
+      - 8000:8000
+    depends_on:
+      - redis
+      - mongo
+    volumes:
+      - ./src:/home/app/src
