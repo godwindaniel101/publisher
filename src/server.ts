@@ -8,8 +8,9 @@ process.on('uncaughtException', (err: AppError) => {
   log.info(err);
   process.exit(1);
 });
-// console.log(process.env)
+
 const result = dotenv.config();
+
 if (result.error){dotenv.config({ path: ".env" })};//set config file if not available
 
 connect();
@@ -19,9 +20,8 @@ const host = process.env.HOST as string;
 
 const server = app.listen(port, () => {
   log.info(`Server listing at http://${host}:${port}`);
-  console.log(`Server runing on port ${port} (${host})`);
-
 });
+
 process.on('unhandledRejection', (err: Error) => {
   log.error(err);
   server.close(() => {

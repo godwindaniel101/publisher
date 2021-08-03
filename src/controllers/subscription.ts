@@ -23,7 +23,6 @@ export const get = asyncError(async (req: Request, res: Response) => {
 
     let topic = req.params.topic;  
     let message = req.body.message;
-
       const subscribers =  await Subscription.find({topic}) as [SubscriptionDocument] ;
         res.status(201).json({
             subscribers

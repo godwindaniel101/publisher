@@ -11,12 +11,17 @@ export const create = asyncError(async (req: Request, res: Response) => {
 
     let topic = req.params.topic;  
     let message = req.body.key;
+    message['topic'] = topic
 
       const subscribers =  await Subscription.find({topic}) as [SubscriptionDocument] ;
 
-          sendPublication(subscribers , message);//send to subscribers with same topic subscription
+          for (let i = 0; i < subscribers.length; i++) { 
+     
+            let url = subscribers[i]['url'] 
 
-        res.status(201).json({
-            subscribers
-        });
+           await sendPublication(url , message);
+     
+          }
+           res.status(201).json({message : 'sending ' +subscribers.length + ' publication'});
+
 })

@@ -1,21 +1,20 @@
 import Bull from 'bull';
 import publication from '../utils/jobs/publications'
 import {setQueues, BullAdapter} from 'bull-board';
+import log from './logger';
 import { SubscriptionDocument } from '../utils/types/subscription';
 
 // https://optimalbits.github.io/bull
 
-export const sendPublication = async (data:[SubscriptionDocument], message:string) => {
+export const sendPublication = async (url:string, message:any) => {
+    
+        const publicationQueue = new Bull('publish', {redis: process.env.REDIS_URL});
 
-const publicationQueue = new Bull('publish', {redis: process.env.REDIS_URL});
+        setQueues([new BullAdapter(publicationQueue)]);
 
-setQueues([new BullAdapter(publicationQueue)]);
+         publicationQueue.process(publication);
 
-await publicationQueue.process(publication);
-
- publicationQueue.add({ data , message }, {attempts: 2});
-
- return true;
+         publicationQueue.add({ url , message }, {attempts: 1});
 
 };
 
